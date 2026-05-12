@@ -1,15 +1,15 @@
 import { GoogleGenAI } from '@google/genai';
 import { TranslationDirection, Difficulty, Topic, EvaluationResult, BatchItem, BatchEvaluationResponse, SpeakingMode, SpeakingPrompt, SpeakingFeedback } from '../types';
 
-const API_KEY = process.env.GEMINI_API_KEY || '';
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 // Lazy initialization to avoid crash if key is missing during startup
 let genAI: GoogleGenAI | null = null;
 
 function getGenAI() {
   if (!genAI) {
-    if (!API_KEY) {
-      console.warn('GEMINI_API_KEY is not configured. AI features will not work.');
+    if (!API_KEY || API_KEY === 'PASTE_MY_GEMINI_API_KEY_HERE') {
+      console.warn('VITE_GEMINI_API_KEY is not configured. AI features will not work.');
       return null;
     }
     genAI = new GoogleGenAI({ apiKey: API_KEY });
