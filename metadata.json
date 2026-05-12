@@ -1,0 +1,6 @@
+{
+  "name": "JP-VI Translation Practice",
+  "description": "Practice Japanese-Vietnamese translation with AI-powered feedback and evaluation.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
+}

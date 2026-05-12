@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile for interview matching and practice.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "japaneseLevel": { "type": "string", "enum": ["N5", "N4", "N3", "N2", "N1", "Business"] },
+        "targetRole": { "type": "string", "enum": ["BrSE", "Tester", "Developer", "BA", "Project Assistant", "Sale Support Japanese", "Office Worker", "Other"] },
+        "interviewGoal": { "type": "string" },
+        "availableStatus": { "type": "string", "enum": ["available", "busy", "invisible"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["displayName", "japaneseLevel", "targetRole", "availableStatus"]
+    },
+    "QueueItem": {
+      "title": "Matching Queue Item",
+      "description": "Represents a user waiting for an interview match.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "japaneseLevel": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "topic": { "type": "string" },
+        "status": { "type": "string", "enum": ["searching", "matched"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "japaneseLevel", "targetRole", "status", "createdAt"]
+    },
+    "InterviewRoom": {
+      "title": "Interview Room",
+      "description": "A private room for two matched users to practice.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "interviewerId": { "type": "string" },
+        "candidateId": { "type": "string" },
+        "topic": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "ended"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "endedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Message": {
+      "title": "Room Message",
+      "description": "A message sent within an interview room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "InterviewHistory": {
+      "title": "Interview History",
+      "description": "A saved record of a completed interview session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "partnerDisplayName": { "type": "string" },
+        "targetRole": { "type": "string" },
+        "topic": { "type": "string" },
+        "transcript": { "type": "string" },
+        "aiFeedback": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Global user profiles."
+    },
+    "/matchingQueue/{queueId}": {
+      "schema": "QueueItem",
+      "description": "Active matching queue."
+    },
+    "/interviewRooms/{roomId}": {
+      "schema": "InterviewRoom",
+      "description": "Active interview rooms."
+    },
+    "/interviewRooms/{roomId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages sent in a specific room."
+    },
+    "/interviewHistory/{historyId}": {
+      "schema": "InterviewHistory",
+      "description": "Personal interview history records."
+    }
+  }
+}

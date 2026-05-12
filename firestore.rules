@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
+    }
+
+    // Matching queue
+    match /matchingQueue/{queueId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || request.resource.data.status == 'matched');
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Interview rooms
+    match /interviewRooms/{roomId} {
+      allow read: if isSignedIn() && (resource.data.userA == request.auth.uid || resource.data.userB == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.userA == request.auth.uid || resource.data.userB == request.auth.uid);
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (get(/databases/$(database)/documents/interviewRooms/$(roomId)).data.userA == request.auth.uid || get(/databases/$(database)/documents/interviewRooms/$(roomId)).data.userB == request.auth.uid);
+        allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // Interview History
+    match /interviewHistory/{historyId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Migration for the original local storage stuff if needed in future (placeholder)
+  }
+}
